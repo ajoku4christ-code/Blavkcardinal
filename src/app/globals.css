@@ -1,1 +1,210 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0D0D0D;
+  --color-secondary: #1A1A2E;
+  --color-accent: #E94560;
+  --color-gold: #FFD700;
+  --color-success: #00D26A;
+  --color-warning: #FFB800;
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(26, 26, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(233, 69, 96, 0.2);
+    border-radius: 16px;
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-gold));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 20px rgba(233, 69, 96, 0.5), 0 0 40px rgba(233, 69, 96, 0.3);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #c73e54 100%);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(233, 69, 96, 0.5);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: 2px solid var(--color-accent);
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-accent);
+  }
+
+  .input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: white;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+  }
+
+  .input-field::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .countdown-box {
+    background: rgba(26, 26, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(233, 69, 96, 0.3);
+    border-radius: 16px;
+    padding: 20px 24px;
+    text-align: center;
+    min-width: 90px;
+  }
+
+  .countdown-number {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: bold;
+    color: var(--color-accent);
+  }
+
+  .countdown-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 8px;
+  }
+
+  .ticket {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid var(--color-accent);
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ticket::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-gold), var(--color-accent));
+  }
+
+  .status-badge {
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-paid {
+    background: rgba(0, 210, 106, 0.2);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+  }
+
+  .status-pending {
+    background: rgba(255, 184, 0, 0.2);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+  }
+
+  .status-rejected {
+    background: rgba(233, 69, 96, 0.2);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.6); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
