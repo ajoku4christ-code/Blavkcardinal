@@ -4,6 +4,7 @@ export const EVENT_TYPES = {
   PAYMENT_APPROVED: 'PAYMENT_APPROVED',
   PAYMENT_REJECTED: 'PAYMENT_REJECTED',
   TICKET_GENERATED: 'TICKET_GENERATED',
+  PAYMENT_REMINDER: 'PAYMENT_REMINDER',
 } as const;
 
 export type EventType = typeof EVENT_TYPES[keyof typeof EVENT_TYPES];
@@ -32,6 +33,8 @@ export const getEventMessage = (eventType: EventType, data: EventPayload): strin
       return `Payment was not approved. Please contact support.`;
     case EVENT_TYPES.TICKET_GENERATED:
       return `Your QR ticket is ready!`;
+    case EVENT_TYPES.PAYMENT_REMINDER:
+      return `Reminder: Complete your payment to secure your ticket.`;
     default:
       return 'Update regarding your House Party registration.';
   }

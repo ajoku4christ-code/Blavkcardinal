@@ -79,6 +79,18 @@ const eventWorker = new Worker<EventJobData>(
           result = true;
           break;
 
+        case EVENT_TYPES.PAYMENT_REMINDER:
+          result = await emailService.sendPaymentReminderEmail(
+            data.email,
+            data.fullName,
+            data.ticketId,
+            data.metadata?.eventDate || 'March 28, 2026',
+            data.metadata?.eventTime || '8:00 PM',
+            data.metadata?.location || 'Abuja, Nigeria',
+            data.amount || 10000
+          );
+          break;
+
         default:
           console.warn(`[EventWorker] Unknown event type: ${eventType}`);
           result = false;

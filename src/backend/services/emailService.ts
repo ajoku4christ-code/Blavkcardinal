@@ -475,6 +475,93 @@ class EmailService {
       html,
     });
   }
+
+  async sendPaymentReminderEmail(
+    email: string,
+    name: string,
+    ticketId: string,
+    eventDate: string,
+    eventTime: string,
+    location: string,
+    amount: number
+  ): Promise<boolean> {
+    const dashboardUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/register?ticketId=${ticketId}`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; background: #0D0D0D; color: #FFFFFF; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1A1A2E 0%, #0D0D0D 100%); border-radius: 20px; padding: 40px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .title { font-size: 32px; font-weight: bold; color: #FFB800; margin: 0; }
+          .subtitle { color: #A0A0A0; margin-top: 10px; }
+          .reminder { background: #FFB800; color: #0D0D0D; padding: 15px 30px; border-radius: 25px; display: inline-block; font-weight: bold; margin: 20px 0; }
+          .content { color: #A0A0A0; line-height: 1.6; }
+          .amount { font-size: 28px; font-weight: bold; color: #C9A227; margin: 15px 0; }
+          .details { background: #16213E; border-radius: 15px; padding: 20px; margin: 20px 0; }
+          .detail-row { display: flex; justify-content: space-between; padding: 8px 0; }
+          .label { color: #A0A0A0; }
+          .value { color: #FFFFFF; font-weight: 600; }
+          .btn { display: inline-block; background: #C9A227; color: #0D0D0D; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 class="title">⏰ Complete Your Payment!</h1>
+            <p class="subtitle">Don't miss out on the party</p>
+          </div>
+          <div style="text-align: center;">
+            <div class="reminder">Complete payment to secure your ticket</div>
+          </div>
+          <div class="content">
+            <p>Hello ${name},</p>
+            <p>You registered for the Exclusive House Party but haven't completed your payment yet.</p>
+            <div class="amount">₦${amount.toLocaleString()}</div>
+            <div class="details">
+              <div class="detail-row">
+                <span class="label">Event</span>
+                <span class="value">Exclusive House Party</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Date</span>
+                <span class="value">${eventDate}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Time</span>
+                <span class="value">${eventTime}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Location</span>
+                <span class="value">${location}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Ticket ID</span>
+                <span class="value" style="color: #C9A227;">${ticketId}</span>
+              </div>
+            </div>
+            <div style="text-align: center;">
+              <a href="${dashboardUrl}" class="btn">Complete Payment Now</a>
+            </div>
+            <p style="margin-top: 20px;">Limited spots available - complete your payment to secure your place!</p>
+          </div>
+          <div class="footer">
+            <p>© 2026 Exclusive House Party</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: '⏰ Reminder: Complete your payment to secure your ticket!',
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailService();

@@ -55,6 +55,42 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    if (action === 'send_reminder') {
+      const pendingGuests = getAllGuests('pending') as any[];
+      
+      if (!pendingGuests || pendingGuests.length === 0) {
+        return NextResponse.json({ 
+          success: true, 
+          message: 'No pending payments to send reminders to',
+          sent: 0
+        });
+      }
+
+      let sent = 0;
+      for (const guest of pendingGuests) {
+        await addEventJob(EVENT_TYPES.PAYMENT_REMINDER, {
+          guestId: Number(guest.id),
+          ticketId: String(guest.ticket_id),
+          email: String(guest.email),
+          fullName: String(guest.full_name),
+          phone: String(guest.phone),
+          amount: 10000,
+          metadata: {
+            eventDate: 'March 28, 2026',
+            eventTime: '8:00 PM',
+            location: 'Abuja, Nigeria',
+          },
+        }).catch(console.error);
+        sent++;
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        message: `Payment reminders sent to ${sent} pending guest(s)`,
+        sent
+      });
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     console.error('Admin error:', error);
