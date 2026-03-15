@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig } from '../queues/queue';
 import { notificationService, NotificationPayload } from '../services/notificationService';
 
 interface NotificationJobData {
@@ -43,7 +43,7 @@ const notificationWorker = new Worker<NotificationJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 10,
   }
 );

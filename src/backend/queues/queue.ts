@@ -1,10 +1,10 @@
 import { Queue, QueueEvents } from 'bullmq';
 
-const connectionConfig = {
+export const getConnectionConfig = () => ({
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379'),
   password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: null,
   retryStrategy: (times: number) => {
     if (times > 3) {
       console.error('Redis connection failed after 3 retries');
@@ -12,9 +12,10 @@ const connectionConfig = {
     }
     return Math.min(times * 100, 3000);
   },
-};
+  lazyConnect: true,
+});
 
-export const redisConnection = connectionConfig;
+export const redisConnection = getConnectionConfig();
 
 export const QUEUE_NAMES = {
   PAYMENT: 'payment-queue',
@@ -35,7 +36,7 @@ export const JOB_NAMES = {
 
 export const createQueue = (name: string) => {
   return new Queue(name, {
-    connection: connectionConfig,
+    connection: getConnectionConfig(),
     defaultJobOptions: {
       attempts: 3,
       backoff: {
@@ -55,7 +56,7 @@ export const createQueue = (name: string) => {
 };
 
 export const createQueueEvents = (name: string) => {
-  return new QueueEvents(name, { connection: connectionConfig });
+  return new QueueEvents(name, { connection: getConnectionConfig() });
 };
 
 export const paymentQueue = createQueue(QUEUE_NAMES.PAYMENT);

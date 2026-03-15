@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig } from '../queues/queue';
 import { ticketService } from '../services/ticketService';
 import { getGuestById } from '@/lib/db';
 
@@ -50,7 +50,7 @@ const ticketWorker = new Worker<TicketJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 3,
   }
 );

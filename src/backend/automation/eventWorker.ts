@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection, JOB_NAMES } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig, JOB_NAMES } from '../queues/queue';
 import { emailService } from '../services/emailService';
 import { EVENT_TYPES, EventType } from '../services/eventTypes';
 
@@ -109,7 +109,7 @@ const eventWorker = new Worker<EventJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 5,
   }
 );

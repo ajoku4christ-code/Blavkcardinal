@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig } from '../queues/queue';
 import { getAllGuests } from '@/lib/db';
 
 interface ReminderJobData {
@@ -37,7 +37,7 @@ const reminderWorker = new Worker<ReminderJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 3,
   }
 );

@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig } from '../queues/queue';
 import { emailService } from '../services/emailService';
 
 interface EmailJobData {
@@ -119,7 +119,7 @@ const emailWorker = new Worker<EmailJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 5,
   }
 );

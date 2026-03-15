@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES, redisConnection } from '../queues/queue';
+import { QUEUE_NAMES, getConnectionConfig } from '../queues/queue';
 import { getGuestById, updatePaymentStatus } from '@/lib/db';
 
 interface PaymentJobData {
@@ -49,7 +49,7 @@ const paymentWorker = new Worker<PaymentJobData>(
     }
   },
   {
-    connection: redisConnection,
+    connection: getConnectionConfig(),
     concurrency: 5,
   }
 );
