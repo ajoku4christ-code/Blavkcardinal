@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const router = useRouter();
   const [guests, setGuests] = useState<any[]>([]);
   const [stats, setStats] = useState({ count: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
@@ -20,15 +18,6 @@ export default function AdminDashboard() {
     gateFee: '10000',
     maxGuests: '100',
   });
-
-  useEffect(() => {
-    const isAuthenticated = document.cookie.includes('admin_session=true');
-    if (!isAuthenticated) {
-      router.push('/admin');
-      return;
-    }
-    fetchGuests();
-  }, [router]);
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -90,15 +79,6 @@ export default function AdminDashboard() {
             <Link href="/verify" className="btn-secondary">
               ✓ Verify Tickets
             </Link>
-            <button 
-              onClick={() => {
-                document.cookie = 'admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-                router.push('/');
-              }}
-              className="btn-secondary"
-            >
-              Logout
-            </button>
           </div>
         </div>
 
