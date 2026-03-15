@@ -42,7 +42,7 @@ export default function Verify() {
         <div className="text-center mb-12">
           <div className="text-6xl mb-4">✓</div>
           <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-            <span className="text-[#FFD700]">QR Code</span> Verification
+            <span className="text-[#C9A227]">QR Code</span> Verification
           </h1>
           <p className="text-white/60">Scan or enter ticket ID to verify guest entry</p>
         </div>
@@ -85,13 +85,13 @@ export default function Verify() {
                 <div className="text-xl font-semibold mb-2">{result.full_name}</div>
                 <div className="text-white/60 mb-4">{result.email}</div>
                 <div className="p-4 rounded-lg bg-[#00D26A]/10 border border-[#00D26A]/30 inline-block">
-                  <span className="font-mono text-[#FFD700]">{result.ticket_id}</span>
+                  <span className="font-mono text-[#C9A227]">{result.ticket_id}</span>
                 </div>
               </>
             ) : (
               <>
                 <div className="text-6xl mb-4">✗</div>
-                <div className="text-3xl font-bold text-[#FFD700] mb-4">NOT VERIFIED</div>
+                <div className="text-3xl font-bold text-[#C9A227] mb-4">NOT VERIFIED</div>
                 <div className="text-white/60">Payment status: {result.payment_status}</div>
               </>
             )}

@@ -49,7 +49,7 @@ export default function AdminLogin() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-4">🔐</div>
             <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-              Admin <span className="text-[#FFD700]">Login</span>
+              Admin <span className="text-[#C9A227]">Login</span>
             </h1>
             <p className="text-white/40 mt-2">Access the admin dashboard</p>
           </div>
@@ -96,7 +96,7 @@ export default function AdminLogin() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/admin/setup" className="text-sm text-[#FFD700] hover:underline">
+            <Link href="/admin/setup" className="text-sm text-[#C9A227] hover:underline">
               Set up or reset admin credentials
             </Link>
           </div>

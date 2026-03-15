@@ -68,7 +68,7 @@ export default function AdminSetup() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-4">⚙️</div>
             <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-              Admin <span className="text-[#FFD700]">Setup</span>
+              Admin <span className="text-[#C9A227]">Setup</span>
             </h1>
             <p className="text-white/40 mt-2">Set your admin credentials</p>
           </div>

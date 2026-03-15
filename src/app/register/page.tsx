@@ -82,7 +82,7 @@ export default function Register() {
 
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-            Get Your <span className="text-[#FFD700]">Gate Pass</span>
+            Get Your <span className="text-[#C9A227]">Gate Pass</span>
           </h1>
           <p className="text-white/60">Secure your spot at the most exclusive party in Abuja</p>
         </div>
@@ -94,14 +94,14 @@ export default function Register() {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
                     step >= s
-                      ? 'bg-[#FFD700] text-white'
+                      ? 'bg-[#C9A227] text-white'
                       : 'bg-white/10 text-white/40'
                   }`}
                 >
                   {s}
                 </div>
                 {s < 3 && (
-                  <div className={`w-16 h-0.5 mx-2 ${step > s ? 'bg-[#FFD700]' : 'bg-white/10'}`} />
+                  <div className={`w-16 h-0.5 mx-2 ${step > s ? 'bg-[#C9A227]' : 'bg-white/10'}`} />
                 )}
               </div>
             ))}
@@ -152,7 +152,7 @@ export default function Register() {
                       type="button"
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.paymentMethod === 'card'
-                          ? 'border-[#FFD700] bg-[#FFD700]/10'
+                          ? 'border-[#C9A227] bg-[#C9A227]/10'
                           : 'border-white/10 hover:border-white/30'
                       }`}
                       onClick={() => setFormData({ ...formData, paymentMethod: 'card' })}
@@ -165,7 +165,7 @@ export default function Register() {
                       type="button"
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.paymentMethod === 'bank_transfer'
-                          ? 'border-[#FFD700] bg-[#FFD700]/10'
+                          ? 'border-[#C9A227] bg-[#C9A227]/10'
                           : 'border-white/10 hover:border-white/30'
                       }`}
                       onClick={() => setFormData({ ...formData, paymentMethod: 'bank_transfer' })}
@@ -201,7 +201,7 @@ export default function Register() {
                 Registration Successful!
               </h2>
               <p className="text-white/60 mb-6">
-                Your Ticket ID: <span className="font-mono text-[#FFD700]">{guestData.ticketId}</span>
+                Your Ticket ID: <span className="font-mono text-[#C9A227]">{guestData.ticketId}</span>
               </p>
 
               <div className="bg-[#16213E] rounded-xl p-6 mb-6 text-left">
@@ -212,7 +212,7 @@ export default function Register() {
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="font-semibold">Total</span>
-                  <span className="font-semibold text-[#FFD700]">₦10,000</span>
+                  <span className="font-semibold text-[#C9A227]">₦10,000</span>
                 </div>
               </div>
 
@@ -262,7 +262,7 @@ export default function Register() {
                   </div>
                   <div>
                     <div className="text-sm text-white/40">Reference</div>
-                    <div className="text-lg font-semibold font-mono text-[#FFD700]">{guestData?.ticketId}</div>
+                    <div className="text-lg font-semibold font-mono text-[#C9A227]">{guestData?.ticketId}</div>
                   </div>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function Register() {
                 <input
                   type="file"
                   accept="image/*,.pdf"
-                  className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FFD700] file:text-white file:cursor-pointer"
+                  className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#C9A227] file:text-white file:cursor-pointer"
                 />
               </div>
 

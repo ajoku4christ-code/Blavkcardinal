@@ -72,7 +72,7 @@ export default function AdminDashboard() {
               ← Back to Home
             </Link>
             <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-              Admin <span className="text-[#FFD700]">Dashboard</span>
+              Admin <span className="text-[#C9A227]">Dashboard</span>
             </h1>
           </div>
           <div className="flex gap-4">
@@ -83,17 +83,17 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex gap-4 mb-8">
-          {['guests', 'settings'].map((tab) => (
+          {['guests', 'payments', 'settings'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === tab
-                  ? 'bg-[#FFD700] text-black'
+                  ? 'bg-[#C9A227] text-black'
                   : 'glass-card text-white/70 hover:text-white'
               }`}
             >
-              {tab === 'guests' ? '👥 Guest Management' : '⚙️ Settings'}
+              {tab === 'guests' ? '👥 Guests' : tab === 'payments' ? '💳 Payments' : '⚙️ Settings'}
             </button>
           ))}
         </div>
@@ -103,12 +103,12 @@ export default function AdminDashboard() {
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Total Paid Guests</div>
-                <div className="text-4xl font-bold text-[#FFD700]">{stats.count}</div>
+                <div className="text-4xl font-bold text-[#C9A227]">{stats.count}</div>
                 <div className="text-sm text-white/40">/ {settings.maxGuests} maximum</div>
               </div>
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Total Revenue</div>
-                <div className="text-4xl font-bold text-[#FFD700]">₦{stats.revenue.toLocaleString()}</div>
+                <div className="text-4xl font-bold text-[#C9A227]">₦{stats.revenue.toLocaleString()}</div>
               </div>
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Pending Payments</div>
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
                       onClick={() => setFilter(status)}
                       className={`px-4 py-2 rounded-lg text-sm transition-all ${
                         filter === status
-                          ? 'bg-[#FFD700] text-black'
+                          ? 'bg-[#C9A227] text-black'
                           : 'bg-white/10 text-white/60 hover:bg-white/20'
                       }`}
                     >
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
 
               {loading ? (
                 <div className="text-center py-12">
-                  <div className="w-12 h-12 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin mx-auto" />
+                  <div className="w-12 h-12 border-4 border-[#C9A227] border-t-transparent rounded-full animate-spin mx-auto" />
                 </div>
               ) : guests.length === 0 ? (
                 <div className="text-center py-12 text-white/40">
@@ -212,10 +212,71 @@ export default function AdminDashboard() {
           </>
         )}
 
+        {activeTab === 'payments' && (
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="glass-card p-6">
+                <div className="text-sm text-white/60 mb-2">Total Guests</div>
+                <div className="text-3xl font-bold text-[#C9A227]">{guests.length}</div>
+              </div>
+              <div className="glass-card p-6">
+                <div className="text-sm text-white/60 mb-2">Paid</div>
+                <div className="text-3xl font-bold text-green-400">{guests.filter((g) => g.payment_status === 'paid').length}</div>
+              </div>
+              <div className="glass-card p-6">
+                <div className="text-sm text-white/60 mb-2">Pending</div>
+                <div className="text-3xl font-bold text-yellow-400">{guests.filter((g) => g.payment_status === 'pending').length}</div>
+              </div>
+              <div className="glass-card p-6">
+                <div className="text-sm text-white/60 mb-2">Rejected</div>
+                <div className="text-3xl font-bold text-red-400">{guests.filter((g) => g.payment_status === 'rejected').length}</div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">Card Payments</h3>
+                <div className="text-2xl font-bold text-[#C9A227] mb-2">
+                  {guests.filter((g) => g.payment_method === 'card' && g.payment_status === 'paid').length}
+                </div>
+                <div className="text-sm text-white/40">Paid via Stripe</div>
+              </div>
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">Bank Transfers</h3>
+                <div className="text-2xl font-bold text-[#C9A227] mb-2">
+                  {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'paid').length}
+                </div>
+                <div className="text-sm text-white/40">Awaiting approval</div>
+                <div className="mt-2 text-sm text-yellow-400">
+                  {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'pending').length} pending verification
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold mb-4">Payment Summary</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                  <span className="text-white/60">Total Revenue Collected</span>
+                  <span className="text-xl font-bold text-[#C9A227]">₦{stats.revenue.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                  <span className="text-white/60">Expected Revenue (if all pending paid)</span>
+                  <span className="text-xl font-bold text-white">₦{(guests.filter((g) => g.payment_status !== 'rejected').length * 10000).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                  <span className="text-white/60">Remaining Spots</span>
+                  <span className="text-xl font-bold text-white">{parseInt(settings.maxGuests) - stats.count}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'settings' && (
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
-              Event <span className="text-[#FFD700]">Settings</span>
+              Event <span className="text-[#C9A227]">Settings</span>
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">

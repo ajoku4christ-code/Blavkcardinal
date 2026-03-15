@@ -104,10 +104,10 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/50 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-wider" style={{ fontFamily: 'var(--font-heading)' }}>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500]">EXCLUSIVE</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A227] to-[#8B7355]">EXCLUSIVE</span>
           </Link>
           <div className="flex items-center gap-8">
-            <Link href="/admin/dashboard" className="text-sm text-white/50 hover:text-[#FFD700] transition-all duration-300 tracking-widest uppercase text-xs">
+            <Link href="/admin/dashboard" className="text-sm text-white/50 hover:text-[#C9A227] transition-all duration-300 tracking-widest uppercase text-xs">
               Admin
             </Link>
           </div>
@@ -119,26 +119,26 @@ export default function Home() {
         <Stars />
         
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#FFD700]/5 rounded-full filter blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#FFD700]/3 rounded-full filter blur-[100px]" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#C9A227]/5 rounded-full filter blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#C9A227]/3 rounded-full filter blur-[100px]" />
         </div>
 
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-[20%] left-[10%] w-2 h-2 bg-white rounded-full animate-ping" />
-          <div className="absolute top-[40%] right-[20%] w-1 h-1 bg-[#FFD700] rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
+          <div className="absolute top-[40%] right-[20%] w-1 h-1 bg-[#C9A227] rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
           <div className="absolute bottom-[30%] left-[30%] w-2 h-2 bg-white rounded-full animate-ping" style={{ animationDelay: '1s' }} />
         </div>
         
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-24">
-          <div className="mb-8 inline-flex items-center gap-3 px-6 py-3 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/5 backdrop-blur-sm">
-            <span className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse" />
-            <span className="text-sm tracking-[0.3em] text-[#FFD700] uppercase text-xs">March 28, 2026 • Abuja</span>
+          <div className="mb-8 inline-flex items-center gap-3 px-6 py-3 rounded-full border border-[#C9A227]/20 bg-[#C9A227]/5 backdrop-blur-sm">
+            <span className="w-2 h-2 bg-[#C9A227] rounded-full animate-pulse" />
+            <span className="text-sm tracking-[0.3em] text-[#C9A227] uppercase text-xs">March 28, 2026 • Abuja</span>
           </div>
           
           <h1 className="text-7xl md:text-9xl font-bold mb-6 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/50">EXCLUSIVE</span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] animate-gradient bg-300pct">HOUSE PARTY</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A227] via-[#8B7355] to-[#C9A227] animate-gradient bg-300pct">HOUSE PARTY</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-white/40 mb-16 max-w-2xl mx-auto font-light tracking-wide">
@@ -155,7 +155,7 @@ export default function Home() {
               Get Your Gate Pass
             </Link>
             <div className="text-center px-8 py-4 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-[#FFD700]">₦10,000</div>
+              <div className="text-3xl font-bold text-[#C9A227]">₦10,000</div>
               <div className="text-xs text-white/40 uppercase tracking-widest mt-1">Gate Fee</div>
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function Home() {
               { icon: '◎', title: 'Entry', desc: 'QR Code Verified' },
             ].map((item, i) => (
               <div key={i} className="premiere-card p-6">
-                <div className="text-2xl text-[#FFD700] mb-3">{item.icon}</div>
+                <div className="text-2xl text-[#C9A227] mb-3">{item.icon}</div>
                 <h3 className="text-sm font-semibold uppercase tracking-widest text-white/60 mb-1">{item.title}</h3>
                 <p className="text-white">{item.desc}</p>
               </div>
@@ -180,7 +180,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0a0a] to-black" />
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-16" style={{ fontFamily: 'var(--font-heading)' }}>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500]">House Rules</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A227] to-[#8B7355]">House Rules</span>
           </h2>
           
           <div className="grid md:grid-cols-2 gap-4">
@@ -193,7 +193,7 @@ export default function Home() {
               { icon: '▸', title: 'Age Restriction', desc: '18+ only' },
             ].map((rule, i) => (
               <div key={i} className="premiere-card p-5 flex gap-4 items-center">
-                <span className="text-[#FFD700] text-lg">{rule.icon}</span>
+                <span className="text-[#C9A227] text-lg">{rule.icon}</span>
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-white/80">{rule.title}</h3>
                   <p className="text-white/40 text-sm mt-1">{rule.desc}</p>
