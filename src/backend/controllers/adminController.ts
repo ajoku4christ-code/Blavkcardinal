@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllGuests, getGuestCount, getTotalRevenue, getGuestById, updatePaymentStatus, adminLogin } from '@/lib/db';
-import { addEmailJob, addPaymentJob } from '@/backend/queues/queue';
+import { addEmailJob, addPaymentJob } from '../queues/queue';
+
+interface GuestRecord {
+  id: number;
+  ticket_id: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  payment_status: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'approve' || action === 'reject') {
       const newStatus = action === 'approve' ? 'paid' : 'rejected';
-      const guest = getGuestById(guestId) as any;
+      const guest = getGuestById(guestId) as GuestRecord | undefined;
       
       if (!guest) {
         return NextResponse.json({ error: 'Guest not found' }, { status: 404 });
@@ -25,54 +34,43 @@ export async function POST(request: NextRequest) {
 
       updatePaymentStatus(guestId, newStatus);
 
-      const guestIdNum = Number(guestId);
-      const ticketId = String(guest.ticket_id);
-      const email = String(guest.email);
-      const fullName = String(guest.full_name);
-      const phone = String(guest.phone);
+      const emailJobData = {
+        guestId: Number(guestId),
+        ticketId: String(guest.ticket_id),
+        email: String(guest.email),
+        fullName: String(guest.full_name),
+        phone: String(guest.phone),
+        template: action === 'approve' ? 'ticket' : 'rejected',
+        subject: action === 'approve' ? 'Your Ticket is Ready!' : 'Payment Update',
+        amount: 10000,
+        eventDate: 'March 28, 2026',
+        eventTime: '8:00 PM',
+        location: 'Abuja, Nigeria',
+        reason: action === 'reject' ? 'Payment could not be verified' : undefined,
+      };
 
-      if (action === 'approve') {
-        addEmailJob('ticket', {
-          guestId: guestIdNum,
-          ticketId,
-          email,
-          fullName,
-          phone,
-          template: 'ticket',
-          subject: 'Your Ticket is Ready!',
-          amount: 10000,
-          eventDate: 'March 28, 2026',
-          eventTime: '8:00 PM',
-          location: 'Abuja, Nigeria',
-        }).catch(console.error);
-      } else {
-        addEmailJob('rejected', {
-          guestId: guestIdNum,
-          ticketId,
-          email,
-          fullName,
-          phone,
-          template: 'rejected',
-          subject: 'Payment Update',
-          amount: 10000,
-          reason: 'Payment could not be verified',
-        }).catch(console.error);
-      }
-
-      addPaymentJob(action, {
-        guestId: guestIdNum,
-        ticketId,
-        email,
-        fullName,
-        phone,
+      const paymentJobData = {
+        guestId: Number(guestId),
+        ticketId: String(guest.ticket_id),
+        email: String(guest.email),
+        fullName: String(guest.full_name),
+        phone: String(guest.phone),
         amount: 10000,
         action,
-      }).catch(console.error);
+      };
+
+      if (action === 'approve') {
+        addEmailJob('ticket', emailJobData).catch(console.error);
+      } else {
+        addEmailJob('rejected', emailJobData).catch(console.error);
+      }
+
+      addPaymentJob(action, paymentJobData).catch(console.error);
 
       return NextResponse.json({ 
         success: true, 
         message: `Guest ${action}d successfully`,
-        emailSent: action === 'approve'
+        emailSent: true
       });
     }
 

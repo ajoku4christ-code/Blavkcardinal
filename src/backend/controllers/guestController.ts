@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createGuest, getGuestByEmail, getGuestByTicketId, getAllGuests, getGuestCount, getTotalRevenue } from '@/lib/db';
-import { addEmailJob, addPaymentJob } from '@/backend/queues/queue';
+import { createGuest, getGuestByEmail, getGuestByTicketId, getGuestCount } from '@/lib/db';
+import { addEmailJob, addPaymentJob } from '../queues/queue';
+import { generateTicketId, validateEmail, validatePhone, sanitizeInput } from '../utils/helpers';
 
 const GATE_FEE = 10000;
 const MAX_GUESTS = 100;
+
+interface RegisterRequest {
+  fullName: string;
+  email: string;
+  phone: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,8 +22,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { fullName, email, phone, paymentMethod } = body;
+    const body: RegisterRequest = await request.json();
+    const { fullName, email, phone } = body;
 
     if (!fullName || !email || !phone) {
       return NextResponse.json(
@@ -25,9 +32,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sanitizedEmail = email.toLowerCase().trim();
-    const sanitizedName = fullName.trim();
-    const sanitizedPhone = phone.trim();
+    const sanitizedName = sanitizeInput(fullName);
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    const sanitizedPhone = sanitizeInput(phone);
+
+    if (!validateEmail(sanitizedEmail)) {
+      return NextResponse.json(
+        { error: 'Invalid email address format' },
+        { status: 400 }
+      );
+    }
+
+    if (!validatePhone(sanitizedPhone)) {
+      return NextResponse.json(
+        { error: 'Invalid phone number format' },
+        { status: 400 }
+      );
+    }
 
     const existingGuest = getGuestByEmail(sanitizedEmail);
     if (existingGuest) {
@@ -37,11 +58,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const guest = createGuest({ 
-      fullName: sanitizedName, 
-      email: sanitizedEmail, 
-      phone: sanitizedPhone, 
-      paymentMethod: paymentMethod || 'bank_transfer' 
+    const guest = createGuest({
+      fullName: sanitizedName,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
+      paymentMethod: 'bank_transfer',
     });
 
     const guestId = Number(guest.id);
@@ -77,7 +98,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Failed to register' },
+      { error: 'Failed to register. Please try again.' },
       { status: 500 }
     );
   }
@@ -96,9 +117,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(guest);
   }
 
-  const guests = getAllGuests(status || undefined);
-  const count = getGuestCount();
-  const revenue = getTotalRevenue();
-
-  return NextResponse.json({ guests, count, revenue });
+  return NextResponse.json({ message: 'Use POST to register a new guest' });
 }
