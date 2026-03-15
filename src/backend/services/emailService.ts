@@ -64,13 +64,10 @@ class EmailService {
           </div>
           <div class="content">
             <p>Hello ${name},</p>
-            <p>Thank you for registering for the Exclusive House Party!</p>
-            <p>Please click the button below to verify your email address:</p>
+            <p>Please verify your email to complete registration.</p>
             <div style="text-align: center;">
               <a href="${verificationUrl}" class="btn">Verify Email</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #C9A227;">${verificationUrl}</p>
           </div>
           <div class="footer">
             <p>© 2026 Exclusive House Party</p>
@@ -171,23 +168,35 @@ class EmailService {
           .subtitle { color: #A0A0A0; margin-top: 10px; }
           .content { color: #A0A0A0; line-height: 1.6; }
           .status { background: #FFB800; color: #0D0D0D; padding: 15px 30px; border-radius: 25px; display: inline-block; font-weight: bold; margin: 20px 0; }
+          .details { background: #16213E; border-radius: 15px; padding: 20px; margin: 20px 0; }
+          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+          .detail-row:last-child { border-bottom: none; }
+          .label { color: #A0A0A0; }
+          .value { color: #FFFFFF; font-weight: 600; }
           .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1 class="title">📄 Receipt Received</h1>
-            <p class="subtitle">Payment verification in progress</p>
+            <h1 class="title">📄 Payment Receipt Received</h1>
+            <p class="subtitle">Your payment is under verification</p>
           </div>
           <div class="content">
             <p>Hello ${name},</p>
-            <p>We have received your payment receipt and it is now being verified.</p>
+            <p>Your payment receipt has been received and is under verification.</p>
+            <p>Thank you for your payment of <strong>₦10,000</strong>.</p>
             <div style="text-align: center;">
-              <div class="status">⏳ Under Review</div>
+              <div class="status">⏳ Under Verification</div>
             </div>
-            <p>Ticket ID: <strong>${ticketId}</strong></p>
-            <p>Verification typically takes 10-30 minutes. You will receive a confirmation email once your payment is approved.</p>
+            <div class="details">
+              <div class="detail-row">
+                <span class="label">Ticket ID</span>
+                <span class="value" style="color: #C9A227;">${ticketId}</span>
+              </div>
+            </div>
+            <p>Your ticket will be generated once payment is verified by our team.</p>
+            <p>This typically takes 10-30 minutes.</p>
           </div>
           <div class="footer">
             <p>© 2026 Exclusive House Party</p>
@@ -199,7 +208,7 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: 'Receipt Received - Exclusive House Party',
+      subject: 'Payment Receipt Received - Under Verification',
       html,
     });
   }
@@ -231,6 +240,8 @@ class EmailService {
           .header { text-align: center; margin-bottom: 30px; }
           .title { font-size: 32px; font-weight: bold; color: #C9A227; margin: 0; }
           .subtitle { color: #A0A0A0; margin-top: 10px; }
+          .content { color: #A0A0A0; line-height: 1.6; }
+          .success { background: #00D26A; color: #0D0D0D; padding: 15px 30px; border-radius: 25px; display: inline-block; font-weight: bold; margin: 20px 0; }
           .ticket { background: #16213E; border-radius: 15px; padding: 30px; text-align: center; border: 2px solid #C9A227; }
           .qr-code { margin: 20px 0; }
           .guest-name { font-size: 24px; font-weight: bold; color: #C9A227; margin: 15px 0; }
@@ -244,7 +255,16 @@ class EmailService {
         <div class="container">
           <div class="header">
             <h1 class="title">🎉 Payment Approved!</h1>
-            <p class="subtitle">Your Gate Pass is Ready</p>
+            <p class="subtitle">Your ticket has been generated successfully</p>
+          </div>
+          <div class="content">
+            <p>Hello ${name},</p>
+            <p>Thank you for your payment of <strong>₦10,000</strong>.</p>
+            <p>Your ticket has been generated successfully.</p>
+            <p>Download your event pass below.</p>
+            <div style="text-align: center;">
+              <div class="success">✓ Approved</div>
+            </div>
           </div>
           <div class="ticket">
             <img src="${qrCodeDataUrl}" alt="QR Code" class="qr-code" />
@@ -257,7 +277,7 @@ class EmailService {
             <div class="ticket-id">Ticket ID: ${ticketId}</div>
           </div>
           <div style="text-align: center;">
-            <a href="${dashboardUrl}" class="btn">View Ticket</a>
+            <a href="${dashboardUrl}" class="btn">View & Download Ticket</a>
           </div>
           <div class="footer">
             <p>Present this QR code at the entrance.</p>
@@ -270,7 +290,7 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: '🎉 Your Gate Pass - Exclusive House Party - APPROVED',
+      subject: '🎉 Your House Party ticket is ready!',
       html,
     });
   }
