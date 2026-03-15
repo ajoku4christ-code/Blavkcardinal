@@ -1,21 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+const PAYMENT_TIMEOUT = 10 * 60;
 
 export default function Register() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [timeLeft, setTimeLeft] = useState(PAYMENT_TIMEOUT);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    paymentMethod: 'card',
   });
   const [guestData, setGuestData] = useState<{ guestId: number; ticketId: string } | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verifying' | 'approved' | 'rejected' | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (step === 3 && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [step, timeLeft]);
+
+  useEffect(() => {
+    if (step === 3 && guestData) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/guests?ticketId=${guestData.ticketId}`);
+          const data = await res.json();
+          if (data.payment_status === 'paid') {
+            setVerificationStatus('approved');
+            setSuccess('Payment approved! Your ticket is ready.');
+            clearInterval(interval);
+          } else if (data.payment_status === 'rejected') {
+            setVerificationStatus('rejected');
+            setError('Payment rejected. Please contact support.');
+            clearInterval(interval);
+          }
+        } catch (e) {
+          console.error('Polling error:', e);
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [step, guestData]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,37 +92,50 @@ export default function Register() {
       setGuestData({ guestId: data.guestId, ticketId: data.ticketId });
       setStep(2);
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePayment = async () => {
-    if (formData.paymentMethod === 'bank_transfer') {
-      setStep(3);
+  const handleProceedToPayment = () => {
+    setStep(3);
+    setTimeLeft(PAYMENT_TIMEOUT);
+  };
+
+  const handleReceiptUpload = async () => {
+    if (!receiptFile) {
+      setError('Please select a receipt image to upload');
       return;
     }
 
-    setLoading(true);
+    setUploading(true);
+    setError('');
+
     try {
-      const response = await fetch('/api/payment', {
+      const uploadFormData = new FormData();
+      uploadFormData.append('receipt', receiptFile);
+      uploadFormData.append('guestId', guestData?.guestId?.toString() || '');
+      uploadFormData.append('ticketId', guestData?.ticketId || '');
+
+      const response = await fetch('/api/upload-receipt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guestId: guestData?.guestId, ticketId: guestData?.ticketId }),
+        body: uploadFormData,
       });
 
       const data = await response.json();
 
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError('Payment initialization failed');
+      if (!response.ok) {
+        setError(data.error || 'Receipt upload failed. Please try again.');
+        return;
       }
+
+      setSuccess('Receipt uploaded successfully! Payment is under verification.');
+      setVerificationStatus('verifying');
     } catch (err) {
-      setError('Payment failed. Please try again.');
+      setError('Receipt upload failed. Please try again.');
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -145,35 +211,14 @@ export default function Register() {
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">Payment Method</label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        formData.paymentMethod === 'card'
-                          ? 'border-[#C9A227] bg-[#C9A227]/10'
-                          : 'border-white/10 hover:border-white/30'
-                      }`}
-                      onClick={() => setFormData({ ...formData, paymentMethod: 'card' })}
-                    >
-                      <div className="text-2xl mb-2">💳</div>
-                      <div className="font-medium">Card Payment</div>
-                      <div className="text-xs text-white/40">Instant confirmation</div>
-                    </button>
-                    <button
-                      type="button"
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        formData.paymentMethod === 'bank_transfer'
-                          ? 'border-[#C9A227] bg-[#C9A227]/10'
-                          : 'border-white/10 hover:border-white/30'
-                      }`}
-                      onClick={() => setFormData({ ...formData, paymentMethod: 'bank_transfer' })}
-                    >
-                      <div className="text-2xl mb-2">🏦</div>
-                      <div className="font-medium">Bank Transfer</div>
-                      <div className="text-xs text-white/40">Manual verification</div>
-                    </button>
+
+                <div className="p-4 rounded-xl bg-[#C9A227]/10 border border-[#C9A227]/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🏦</span>
+                    <div>
+                      <div className="font-semibold text-[#C9A227]">Bank Transfer Only</div>
+                      <div className="text-sm text-white/60">Make payment via bank transfer</div>
+                    </div>
                   </div>
                 </div>
 
@@ -217,19 +262,14 @@ export default function Register() {
               </div>
 
               <button
-                onClick={handlePayment}
-                disabled={loading}
-                className="btn-primary w-full disabled:opacity-50 mb-4"
+                onClick={handleProceedToPayment}
+                className="btn-primary w-full"
               >
-                {loading
-                  ? 'Processing...'
-                  : formData.paymentMethod === 'card'
-                  ? 'Pay with Card'
-                  : 'Continue to Bank Details'}
+                Continue to Bank Details
               </button>
 
               {error && (
-                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm mt-4">
                   {error}
                 </div>
               )}
@@ -239,52 +279,113 @@ export default function Register() {
           {step === 3 && (
             <div className="text-center">
               <div className="text-6xl mb-6">🏦</div>
-              <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
+              <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                 Bank Transfer Details
               </h2>
-              <p className="text-white/60 mb-6">
-                Transfer ₦10,000 to the account below and upload your proof of payment
+              <p className="text-white/60 mb-4">
+                Transfer ₦10,000 to the account below
               </p>
+
+              {timeLeft > 0 && (
+                <div className="mb-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                  <div className="text-sm text-yellow-400 mb-1">Payment expires in</div>
+                  <div className="text-3xl font-bold font-mono text-yellow-400">
+                    {formatTime(timeLeft)}
+                  </div>
+                </div>
+              )}
+
+              {timeLeft === 0 && (
+                <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+                  <div className="text-red-400 font-semibold">Payment window expired</div>
+                  <p className="text-white/60 text-sm mt-1">Please contact support or try again</p>
+                </div>
+              )}
 
               <div className="bg-[#16213E] rounded-xl p-6 mb-6">
                 <div className="text-left space-y-4">
                   <div>
                     <div className="text-sm text-white/40">Bank Name</div>
-                    <div className="text-lg font-semibold">First Bank</div>
+                    <div className="text-lg font-semibold">Access Bank</div>
                   </div>
                   <div>
                     <div className="text-sm text-white/40">Account Number</div>
-                    <div className="text-lg font-semibold font-mono">3084726193</div>
+                    <div className="text-lg font-semibold font-mono">0123456789</div>
                   </div>
                   <div>
                     <div className="text-sm text-white/40">Account Name</div>
-                    <div className="text-lg font-semibold">Exclusive Party</div>
+                    <div className="text-lg font-semibold">House Party Events</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white/40">Reference</div>
+                    <div className="text-sm text-white/40">Amount</div>
+                    <div className="text-lg font-semibold text-[#C9A227]">₦10,000</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/40">Reference Code</div>
                     <div className="text-lg font-semibold font-mono text-[#C9A227]">{guestData?.ticketId}</div>
                   </div>
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm text-white/60 mb-2">Upload Proof of Transfer</label>
+                <label className="block text-sm text-white/60 mb-2">Upload Payment Receipt</label>
                 <input
                   type="file"
                   accept="image/*,.pdf"
+                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
                   className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#C9A227] file:text-white file:cursor-pointer"
                 />
+                {receiptFile && (
+                  <p className="text-sm text-green-400 mt-2">Selected: {receiptFile.name}</p>
+                )}
               </div>
 
-              <Link
-                href={`/dashboard?ticketId=${guestData?.ticketId}`}
-                className="btn-primary inline-block w-full"
+              {error && (
+                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm mb-4">
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm mb-4">
+                  {success}
+                </div>
+              )}
+
+              {verificationStatus === 'verifying' && (
+                <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm mb-4">
+                  ⏳ Payment Under Verification - Please wait while we confirm your payment
+                </div>
+              )}
+
+              <button
+                onClick={handleReceiptUpload}
+                disabled={uploading || timeLeft === 0 || verificationStatus === 'approved'}
+                className="btn-primary w-full disabled:opacity-50 mb-4"
               >
-                Go to Dashboard
-              </Link>
+                {uploading ? 'Uploading...' : 'Upload Receipt'}
+              </button>
+
+              {verificationStatus !== 'approved' && (
+                <Link
+                  href={`/dashboard?ticketId=${guestData?.ticketId}`}
+                  className="btn-secondary inline-block w-full"
+                >
+                  Go to Dashboard
+                </Link>
+              )}
+
+              {verificationStatus === 'approved' && (
+                <Link
+                  href={`/dashboard?ticketId=${guestData?.ticketId}`}
+                  className="btn-primary inline-block w-full"
+                >
+                  View Your Ticket 🎫
+                </Link>
+              )}
 
               <p className="text-white/40 text-sm mt-4">
-                Your payment will be verified within 24 hours
+                Your payment will be verified within 10-30 minutes
               </p>
             </div>
           )}

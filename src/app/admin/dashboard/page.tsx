@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AdminDashboard() {
   const [guests, setGuests] = useState<any[]>([]);
@@ -10,6 +11,8 @@ export default function AdminDashboard() {
   const [filter, setFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('guests');
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [settings, setSettings] = useState({
     eventName: 'Exclusive House Party',
     eventDate: '2026-03-28',
@@ -39,19 +42,41 @@ export default function AdminDashboard() {
   }, [fetchGuests]);
 
   const handleAction = async (guestId: number, action: 'approve' | 'reject') => {
+    if (!confirm(`Are you sure you want to ${action} this payment?`)) {
+      return;
+    }
+    
     setActionLoading(guestId);
     try {
-      await fetch('/api/admin', {
+      const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, guestId }),
       });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.message);
+        if (data.emailSent) {
+          alert('Ticket email sent to guest!');
+        }
+      } else {
+        alert(data.error || 'Action failed');
+      }
+      
       fetchGuests();
     } catch (error) {
       console.error('Action failed:', error);
+      alert('Action failed. Please try again.');
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const viewReceipt = (receiptPath: string) => {
+    setSelectedReceipt(receiptPath);
+    setShowReceiptModal(true);
   };
 
   const handleSettingChange = (key: string, value: string) => {
@@ -63,8 +88,58 @@ export default function AdminDashboard() {
     alert('Settings saved successfully!');
   };
 
+  const pendingBankTransfers = guests.filter((g) => 
+    g.payment_method === 'bank_transfer' && g.payment_status === 'pending'
+  );
+
   return (
     <main className="min-h-screen py-12 px-6">
+      {showReceiptModal && selectedReceipt && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1A1A2E] rounded-xl p-4 max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Payment Receipt</h3>
+              <button 
+                onClick={() => setShowReceiptModal(false)}
+                className="text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="relative h-96">
+              <Image 
+                src={selectedReceipt} 
+                alt="Receipt" 
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => {
+                  const guest = guests.find(g => g.bank_transfer_proof === selectedReceipt);
+                  if (guest) handleAction(guest.id, 'approve');
+                  setShowReceiptModal(false);
+                }}
+                className="flex-1 py-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30"
+              >
+                ✓ Approve Payment
+              </button>
+              <button
+                onClick={() => {
+                  const guest = guests.find(g => g.bank_transfer_proof === selectedReceipt);
+                  if (guest) handleAction(guest.id, 'reject');
+                  setShowReceiptModal(false);
+                }}
+                className="flex-1 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"
+              >
+                ✗ Reject Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -81,6 +156,22 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
+
+        {pendingBankTransfers.length > 0 && (
+          <div className="mb-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-yellow-400">
+                  {pendingBankTransfers.length} Payment{pendingBankTransfers.length > 1 ? 's' : ''} Pending Verification
+                </div>
+                <div className="text-sm text-white/60">
+                  Review and approve bank transfer receipts
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-4 mb-8">
           {['guests', 'payments', 'settings'].map((tab) => (
@@ -152,8 +243,9 @@ export default function AdminDashboard() {
                     <thead>
                       <tr className="border-b border-white/10">
                         <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Guest</th>
+                        <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Phone</th>
                         <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Ticket ID</th>
-                        <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Payment Method</th>
+                        <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Receipt</th>
                         <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Status</th>
                         <th className="text-left py-4 px-4 text-sm text-white/60 font-medium">Date</th>
                         <th className="text-right py-4 px-4 text-sm text-white/60 font-medium">Actions</th>
@@ -168,36 +260,46 @@ export default function AdminDashboard() {
                               <div className="text-sm text-white/40">{guest.email}</div>
                             </div>
                           </td>
+                          <td className="py-4 px-4 text-sm">{guest.phone}</td>
                           <td className="py-4 px-4 font-mono text-sm">{guest.ticket_id}</td>
                           <td className="py-4 px-4">
-                            <span className="text-sm">
-                              {guest.payment_method === 'card' ? '💳 Card' : '🏦 Bank Transfer'}
-                            </span>
+                            {guest.bank_transfer_proof ? (
+                              <button
+                                onClick={() => viewReceipt(guest.bank_transfer_proof)}
+                                className="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-sm"
+                              >
+                                👁️ View
+                              </button>
+                            ) : (
+                              <span className="text-white/40 text-sm">No receipt</span>
+                            )}
                           </td>
                           <td className="py-4 px-4">
                             <span className={`status-badge status-${guest.payment_status}`}>
-                              {guest.payment_status}
+                              {guest.payment_status === 'paid' ? '✓ Approved' : 
+                               guest.payment_status === 'pending' ? '⏳ Pending' : 
+                               '✗ Rejected'}
                             </span>
                           </td>
                           <td className="py-4 px-4 text-sm text-white/60">
                             {new Date(guest.created_at).toLocaleDateString()}
                           </td>
                           <td className="py-4 px-4 text-right">
-                            {guest.payment_status === 'pending' && guest.payment_method === 'bank_transfer' && (
+                            {guest.payment_status === 'pending' && (
                               <div className="flex gap-2 justify-end">
                                 <button
                                   onClick={() => handleAction(guest.id, 'approve')}
                                   disabled={actionLoading === guest.id}
                                   className="px-3 py-1 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 text-sm transition-all disabled:opacity-50"
                                 >
-                                  ✓ Approve
+                                  {actionLoading === guest.id ? '...' : '✓ Approve'}
                                 </button>
                                 <button
                                   onClick={() => handleAction(guest.id, 'reject')}
                                   disabled={actionLoading === guest.id}
                                   className="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-sm transition-all disabled:opacity-50"
                                 >
-                                  ✗ Reject
+                                  {actionLoading === guest.id ? '...' : '✗ Reject'}
                                 </button>
                               </div>
                             )}
@@ -233,22 +335,20 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Card Payments</h3>
-                <div className="text-2xl font-bold text-[#C9A227] mb-2">
-                  {guests.filter((g) => g.payment_method === 'card' && g.payment_status === 'paid').length}
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold mb-4">Bank Transfer Summary</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-4 rounded-lg bg-white/5">
+                  <div className="text-sm text-white/60 mb-2">Awaiting Verification</div>
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'pending').length}
+                  </div>
                 </div>
-                <div className="text-sm text-white/40">Paid via Stripe</div>
-              </div>
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Bank Transfers</h3>
-                <div className="text-2xl font-bold text-[#C9A227] mb-2">
-                  {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'paid').length}
-                </div>
-                <div className="text-sm text-white/40">Awaiting approval</div>
-                <div className="mt-2 text-sm text-yellow-400">
-                  {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'pending').length} pending verification
+                <div className="p-4 rounded-lg bg-white/5">
+                  <div className="text-sm text-white/60 mb-2">Approved</div>
+                  <div className="text-2xl font-bold text-green-400">
+                    {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'paid').length}
+                  </div>
                 </div>
               </div>
             </div>
