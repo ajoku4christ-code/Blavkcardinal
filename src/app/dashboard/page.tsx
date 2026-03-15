@@ -171,6 +171,13 @@ function DashboardContent() {
 
           <p className="text-white/60 mb-6">Guest</p>
 
+          <div className="mb-8">
+            <div className="text-2xl font-bold text-[#FFD700] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+              EXCLUSIVE HOUSE PARTY
+            </div>
+            <div className="text-sm text-white/50">Saturday, March 28, 2026</div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4 mb-6 text-left max-w-md mx-auto">
             <div className="bg-black/20 rounded-lg p-4">
               <div className="text-sm text-white/40">Event</div>

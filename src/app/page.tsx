@@ -56,7 +56,7 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/30 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-            <span className="text-[#E94560]">Exclusive</span> House Party
+            <span className="text-[#FFD700]">Exclusive</span> House Party
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/admin" className="text-sm text-white/70 hover:text-white transition-colors">
@@ -69,18 +69,18 @@ export default function Home() {
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0D0D0D] via-[#1A1A2E] to-[#0D0D0D]" />
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#E94560] rounded-full filter blur-[150px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[150px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[150px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#B8860B] rounded-full filter blur-[150px] animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
         
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-20">
-          <div className="inline-block mb-6 px-6 py-2 rounded-full border border-[#E94560]/30 bg-[#E94560]/10 text-[#E94560] text-sm font-medium">
+          <div className="inline-block mb-6 px-6 py-2 rounded-full border border-[#FFD700]/30 bg-[#FFD700]/10 text-[#FFD700] text-sm font-medium">
             March 28, 2026 • Abuja, Nigeria
           </div>
           
           <h1 className="text-6xl md:text-8xl font-bold mb-6 glow-text" style={{ fontFamily: 'var(--font-heading)' }}>
             Exclusive<br />
-            <span className="text-[#E94560]">House Party</span>
+            <span className="text-[#FFD700]">House Party</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-12 max-w-2xl mx-auto">
@@ -126,7 +126,7 @@ export default function Home() {
       <section className="py-20 px-6 relative">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-12" style={{ fontFamily: 'var(--font-heading)' }}>
-            Event <span className="text-[#E94560]">Rules</span>
+            Event <span className="text-[#FFD700]">Rules</span>
           </h2>
           
           <div className="grid md:grid-cols-2 gap-6">
@@ -135,7 +135,6 @@ export default function Home() {
               { icon: '⏰', title: 'Arrival Time', desc: 'Doors open at 8:00 PM. Late arrivals may not be admitted' },
               { icon: '📷', title: 'No Photography', desc: 'Respect the privacy of fellow guests' },
               { icon: '🚫', title: 'No Drugs/Weapons', desc: 'Zero tolerance policy for illegal substances and weapons' },
-              { icon: '🍺', title: 'BYOB', desc: 'Bring your own drinks. Food will be provided' },
               { icon: '🎉', title: 'Have Fun', desc: 'Dance, vibe, and make unforgettable memories!' },
             ].map((rule, i) => (
               <div key={i} className="glass-card p-6 flex gap-4 items-start">

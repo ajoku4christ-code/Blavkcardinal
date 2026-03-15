@@ -3,8 +3,9 @@
 @theme {
   --color-primary: #0D0D0D;
   --color-secondary: #1A1A2E;
-  --color-accent: #E94560;
+  --color-accent: #FFD700;
   --color-gold: #FFD700;
+  --color-gold-dark: #B8860B;
   --color-success: #00D26A;
   --color-warning: #FFB800;
   --font-heading: 'Playfair Display', serif;
@@ -33,7 +34,7 @@
   .glass-card {
     background: rgba(26, 26, 46, 0.6);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(233, 69, 96, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.2);
     border-radius: 16px;
   }
 
@@ -48,7 +49,7 @@
     inset: 0;
     border-radius: inherit;
     padding: 2px;
-    background: linear-gradient(135deg, var(--color-accent), var(--color-gold));
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -56,36 +57,37 @@
   }
 
   .glow-text {
-    text-shadow: 0 0 20px rgba(233, 69, 96, 0.5), 0 0 40px rgba(233, 69, 96, 0.3);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--color-accent) 0%, #c73e54 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+    color: #0D0D0D;
     padding: 14px 32px;
     border-radius: 50px;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(233, 69, 96, 0.5);
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
   }
 
   .btn-secondary {
     background: transparent;
-    color: white;
+    color: var(--color-gold);
     padding: 14px 32px;
     border-radius: 50px;
     font-weight: 600;
-    border: 2px solid var(--color-accent);
+    border: 2px solid var(--color-gold);
     transition: all 0.3s ease;
   }
 
   .btn-secondary:hover {
-    background: var(--color-accent);
+    background: var(--color-gold);
+    color: #0D0D0D;
   }
 
   .input-field {
@@ -100,8 +102,8 @@
 
   .input-field:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
   }
 
   .input-field::placeholder {
@@ -111,7 +113,7 @@
   .countdown-box {
     background: rgba(26, 26, 46, 0.8);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(233, 69, 96, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.3);
     border-radius: 16px;
     padding: 20px 24px;
     text-align: center;
@@ -122,7 +124,7 @@
     font-family: var(--font-mono);
     font-size: 40px;
     font-weight: bold;
-    color: var(--color-accent);
+    color: var(--color-gold);
   }
 
   .countdown-label {
@@ -134,8 +136,8 @@
   }
 
   .ticket {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: 2px solid var(--color-accent);
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+    border: 3px solid var(--color-gold);
     border-radius: 20px;
     padding: 30px;
     position: relative;
@@ -148,8 +150,8 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--color-accent), var(--color-gold), var(--color-accent));
+    height: 6px;
+    background: linear-gradient(90deg, var(--color-gold), #FFF8DC, var(--color-gold));
   }
 
   .status-badge {
@@ -174,9 +176,9 @@
   }
 
   .status-rejected {
-    background: rgba(233, 69, 96, 0.2);
-    color: var(--color-accent);
-    border: 1px solid var(--color-accent);
+    background: rgba(255, 215, 0, 0.2);
+    color: var(--color-gold);
+    border: 1px solid var(--color-gold);
   }
 }
 
@@ -186,8 +188,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
 }
 
 @keyframes gradient-shift {
