@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
-  const router = useRouter();
   const [guests, setGuests] = useState<any[]>([]);
   const [stats, setStats] = useState({ count: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
@@ -37,13 +35,8 @@ export default function AdminDashboard() {
   }, [filter]);
 
   useEffect(() => {
-    const isAuthenticated = document.cookie.includes('admin_session=true');
-    if (!isAuthenticated) {
-      router.push('/admin');
-      return;
-    }
     fetchGuests();
-  }, [router, fetchGuests]);
+  }, [fetchGuests]);
 
   const handleAction = async (guestId: number, action: 'approve' | 'reject') => {
     setActionLoading(guestId);
@@ -59,11 +52,6 @@ export default function AdminDashboard() {
     } finally {
       setActionLoading(null);
     }
-  };
-
-  const handleLogout = () => {
-    document.cookie = 'admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-    router.push('/');
   };
 
   const handleSettingChange = (key: string, value: string) => {
@@ -91,9 +79,6 @@ export default function AdminDashboard() {
             <Link href="/verify" className="btn-secondary">
               ✓ Verify Tickets
             </Link>
-            <button onClick={handleLogout} className="btn-secondary">
-              Logout
-            </button>
           </div>
         </div>
 
