@@ -41,7 +41,7 @@ export default function AdminLogin() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-md">
-        <Link href="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-8 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white mb-8 transition-colors">
           ← Back to Home
         </Link>
 
@@ -49,9 +49,9 @@ export default function AdminLogin() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-4">🔐</div>
             <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-              Admin <span className="text-[#E94560]">Login</span>
+              Admin <span className="text-[#FFD700]">Login</span>
             </h1>
-            <p className="text-white/60 mt-2">Access the admin dashboard</p>
+            <p className="text-white/40 mt-2">Access the admin dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -88,16 +88,18 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full disabled:opacity-50"
+                className="btn-primary w-full"
               >
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </div>
           </form>
 
-          <p className="text-white/40 text-sm text-center mt-6">
-            Default: admin / admin123
-          </p>
+          <div className="mt-6 text-center">
+            <Link href="/admin/setup" className="text-sm text-[#FFD700] hover:underline">
+              Set up or reset admin credentials
+            </Link>
+          </div>
         </div>
       </div>
     </main>

@@ -30,12 +30,13 @@ db.exec(`
 
 function ensureAdmin() {
   try {
-    const adminExists = db.prepare('SELECT COUNT(*) as count FROM admins WHERE username = ?').get('admin') as { count: number };
-    if (adminExists.count === 0) {
+    const result = db.prepare('SELECT COUNT(*) as count FROM admins').get() as { count: number };
+    if (result.count === 0) {
       const passwordHash = bcrypt.hashSync('admin123', 10);
       db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run('admin', passwordHash);
     }
   } catch (e) {
+    // Table might not exist yet
   }
 }
 
