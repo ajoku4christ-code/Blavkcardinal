@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllGuests, getGuestCount, getTotalRevenue, getGuestById, updatePaymentStatus, adminLogin } from '@/lib/db';
-import { addEmailJob, addPaymentJob } from '@/backend/queues/queue';
+import { addEventJob } from '@/backend/queues/queue';
+import { EVENT_TYPES } from '@/backend/services/eventTypes';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,42 +32,20 @@ export async function POST(request: NextRequest) {
       const fullName = String(guest.full_name);
       const phone = String(guest.phone);
 
-      if (action === 'approve') {
-        addEmailJob('ticket', {
-          guestId: guestIdNum,
-          ticketId,
-          email,
-          fullName,
-          phone,
-          template: 'ticket',
-          subject: 'Your Ticket is Ready!',
-          amount: 10000,
-          eventDate: 'March 28, 2026',
-          eventTime: '8:00 PM',
-          location: 'Abuja, Nigeria',
-        }).catch(console.error);
-      } else {
-        addEmailJob('rejected', {
-          guestId: guestIdNum,
-          ticketId,
-          email,
-          fullName,
-          phone,
-          template: 'rejected',
-          subject: 'Payment Update',
-          amount: 10000,
-          reason: 'Payment could not be verified',
-        }).catch(console.error);
-      }
+      const eventType = action === 'approve' 
+        ? EVENT_TYPES.PAYMENT_APPROVED 
+        : EVENT_TYPES.PAYMENT_REJECTED;
 
-      addPaymentJob(action, {
+      addEventJob(eventType, {
         guestId: guestIdNum,
         ticketId,
         email,
         fullName,
         phone,
         amount: 10000,
-        action,
+        metadata: {
+          reason: action === 'reject' ? 'Payment could not be verified' : undefined,
+        },
       }).catch(console.error);
 
       return NextResponse.json({ 

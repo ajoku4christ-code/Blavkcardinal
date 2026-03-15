@@ -1,3 +1,4 @@
+import eventWorker from './eventWorker';
 import emailWorker from './emailWorker';
 import ticketWorker from './ticketWorker';
 import notificationWorker from './notificationWorker';
@@ -7,6 +8,7 @@ export const startAllWorkers = async () => {
   console.log('[Automation] Starting all workers...');
   
   await Promise.all([
+    eventWorker.waitUntilReady(),
     emailWorker.waitUntilReady(),
     ticketWorker.waitUntilReady(),
     notificationWorker.waitUntilReady(),
@@ -20,6 +22,7 @@ export const stopAllWorkers = async () => {
   console.log('[Automation] Stopping all workers...');
   
   await Promise.all([
+    eventWorker.close(),
     emailWorker.close(),
     ticketWorker.close(),
     notificationWorker.close(),
@@ -30,6 +33,7 @@ export const stopAllWorkers = async () => {
 };
 
 export {
+  eventWorker,
   emailWorker,
   ticketWorker,
   notificationWorker,

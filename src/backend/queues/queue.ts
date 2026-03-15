@@ -22,6 +22,15 @@ export const QUEUE_NAMES = {
   TICKET: 'ticket-queue',
   NOTIFICATION: 'notification-queue',
   REMINDER: 'reminder-queue',
+  EVENTS: 'events-queue',
+} as const;
+
+export const JOB_NAMES = {
+  USER_REGISTERED: 'USER_REGISTERED',
+  PAYMENT_RECEIPT_UPLOADED: 'PAYMENT_RECEIPT_UPLOADED',
+  PAYMENT_APPROVED: 'PAYMENT_APPROVED',
+  PAYMENT_REJECTED: 'PAYMENT_REJECTED',
+  TICKET_GENERATED: 'TICKET_GENERATED',
 } as const;
 
 export const createQueue = (name: string) => {
@@ -54,12 +63,14 @@ export const emailQueue = createQueue(QUEUE_NAMES.EMAIL);
 export const ticketQueue = createQueue(QUEUE_NAMES.TICKET);
 export const notificationQueue = createQueue(QUEUE_NAMES.NOTIFICATION);
 export const reminderQueue = createQueue(QUEUE_NAMES.REMINDER);
+export const eventQueue = createQueue(QUEUE_NAMES.EVENTS);
 
 export const paymentQueueEvents = createQueueEvents(QUEUE_NAMES.PAYMENT);
 export const emailQueueEvents = createQueueEvents(QUEUE_NAMES.EMAIL);
 export const ticketQueueEvents = createQueueEvents(QUEUE_NAMES.TICKET);
 export const notificationQueueEvents = createQueueEvents(QUEUE_NAMES.NOTIFICATION);
 export const reminderQueueEvents = createQueueEvents(QUEUE_NAMES.REMINDER);
+export const eventQueueEvents = createQueueEvents(QUEUE_NAMES.EVENTS);
 
 export type JobData = {
   guestId: number;
@@ -111,6 +122,22 @@ export const addReminderJob = async (jobName: string, data: JobData & { eventDat
   });
 };
 
+export const addEventJob = async (eventType: string, data: {
+  guestId: number;
+  ticketId: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  amount?: number;
+  receiptPath?: string;
+  metadata?: Record<string, any>;
+}) => {
+  return eventQueue.add(eventType, {
+    eventType,
+    ...data,
+  });
+};
+
 function calculateReminderDelay(eventDate: string, daysBefore: number): number {
   const event = new Date(eventDate);
   const reminder = new Date(event);
@@ -136,12 +163,15 @@ export const queueExports = {
   ticketQueue,
   notificationQueue,
   reminderQueue,
+  eventQueue,
   QUEUE_NAMES,
+  JOB_NAMES,
   addPaymentJob,
   addEmailJob,
   addTicketJob,
   addNotificationJob,
   addReminderJob,
+  addEventJob,
   closeAllQueues,
 };
 

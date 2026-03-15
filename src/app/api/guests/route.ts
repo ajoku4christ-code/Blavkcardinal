@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createGuest, getGuestByEmail, getGuestByTicketId, getAllGuests, getGuestCount, getTotalRevenue } from '@/lib/db';
-import { addEmailJob, addPaymentJob } from '@/backend/queues/queue';
+import { addEventJob } from '@/backend/queues/queue';
+import { EVENT_TYPES } from '@/backend/services/eventTypes';
 
 const GATE_FEE = 10000;
 const MAX_GUESTS = 100;
@@ -47,25 +48,13 @@ export async function POST(request: NextRequest) {
     const guestId = Number(guest.id);
     const ticketId = String(guest.ticketId);
 
-    addEmailJob('registration', {
-      guestId,
-      ticketId,
-      email: sanitizedEmail,
-      fullName: sanitizedName,
-      phone: sanitizedPhone,
-      template: 'verification',
-      subject: 'Complete Your Registration',
-      amount: GATE_FEE,
-    }).catch(console.error);
-
-    addPaymentJob('registered', {
+    addEventJob(EVENT_TYPES.USER_REGISTERED, {
       guestId,
       ticketId,
       email: sanitizedEmail,
       fullName: sanitizedName,
       phone: sanitizedPhone,
       amount: GATE_FEE,
-      paymentMethod: 'bank_transfer',
     }).catch(console.error);
 
     return NextResponse.json({
