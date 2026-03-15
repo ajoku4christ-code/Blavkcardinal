@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { getGuestById, updateBankTransferProof } from '@/lib/db';
+import { addEmailJob, addNotificationJob } from '@/backend/queues/queue';
 
 const UPLOAD_DIR = join(process.cwd(), 'public', 'receipts');
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const guest = getGuestById(Number(guestId));
+    const guest = getGuestById(Number(guestId)) as any;
     if (!guest) {
       return NextResponse.json(
         { error: 'Guest not found' },
@@ -50,9 +51,47 @@ export async function POST(request: NextRequest) {
     const receiptPath = `/receipts/${fileName}`;
     updateBankTransferProof(Number(guestId), receiptPath);
 
+    const guestIdNum = Number(guestId);
+    const email = String(guest.email);
+    const fullName = String(guest.full_name);
+    const phone = String(guest.phone);
+
+    addEmailJob('receipt_acknowledgement', {
+      guestId: guestIdNum,
+      ticketId: String(ticketId),
+      email,
+      fullName,
+      phone,
+      template: 'receipt_acknowledgement',
+      subject: 'Receipt Received - Payment Under Review',
+    }).catch(console.error);
+
+    addNotificationJob('new_payment', {
+      guestId: guestIdNum,
+      ticketId: String(ticketId),
+      email,
+      fullName,
+      phone,
+      amount: 10000,
+      type: 'payment_received',
+      message: `New payment from ${fullName} - ₦10,000 pending verification`,
+    }).catch(console.error);
+
+    addEmailJob('admin_alert', {
+      guestId: guestIdNum,
+      ticketId: String(ticketId),
+      email: process.env.ADMIN_EMAILS || 'admin@party.com',
+      fullName,
+      phone,
+      amount: 10000,
+      template: 'admin_alert',
+      subject: 'New Payment Received',
+      alertType: 'New Payment Received',
+    }).catch(console.error);
+
     return NextResponse.json({
       success: true,
-      message: 'Receipt uploaded successfully',
+      message: 'Receipt uploaded successfully. Payment is pending verification.',
       receiptPath
     });
   } catch (error) {

@@ -39,6 +39,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchGuests();
+    
+    const interval = setInterval(() => {
+      fetchGuests();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, [fetchGuests]);
 
   const handleAction = async (guestId: number, action: 'approve' | 'reject') => {
