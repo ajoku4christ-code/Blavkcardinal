@@ -106,11 +106,6 @@ export default function Home() {
           <Link href="/" className="text-xl font-bold tracking-wider" style={{ fontFamily: 'var(--font-heading)' }}>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A227] to-[#8B7355]">Exclusive House Party</span>
           </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/admin/dashboard" className="text-sm text-white/50 hover:text-[#C9A227] transition-all duration-300 tracking-widest uppercase text-xs">
-              Control Panel
-            </Link>
-          </div>
         </div>
       </nav>
 

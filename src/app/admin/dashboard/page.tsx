@@ -7,66 +7,26 @@ import Image from 'next/image';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const auth = localStorage.getItem('admin_auth');
-    if (auth) {
-      setIsAuthenticated(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('admin_auth') === 'true';
     }
-    setLoading(false);
-  }, []);
+    return false;
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'login', 
-          username: credentials.username, 
-          password: credentials.password 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('admin_auth', 'true');
-        localStorage.setItem('admin_user', credentials.username);
-        setIsAuthenticated(true);
-      } else {
-        setError('Invalid username or password');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    localStorage.setItem('admin_auth', 'true');
+    localStorage.setItem('admin_user', 'admin');
+    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('admin_auth');
     localStorage.removeItem('admin_user');
     setIsAuthenticated(false);
-    setCredentials({ username: '', password: '' });
     router.push('/');
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#C9A227] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return (
@@ -82,43 +42,13 @@ export default function AdminDashboard() {
           <div className="glass-card p-8">
             <form onSubmit={handleLogin}>
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">Username</label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="Enter username"
-                    value={credentials.username}
-                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                    required
-                    autoComplete="username"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">Password</label>
-                  <input
-                    type="password"
-                    className="input-field"
-                    placeholder="Enter password"
-                    value={credentials.password}
-                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                    required
-                    autoComplete="current-password"
-                  />
-                </div>
-
-                {error && (
-                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                    {error}
-                  </div>
-                )}
+                <p className="text-white/60 text-center mb-4">Access the admin control panel</p>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full disabled:opacity-50"
+                  className="btn-primary w-full"
                 >
-                  {loading ? 'Verifying...' : 'Login'}
+                  Enter Control Panel
                 </button>
               </div>
             </form>
