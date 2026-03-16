@@ -1,10 +1,144 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const auth = localStorage.getItem('admin_auth');
+    if (auth) {
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'login', 
+          username: credentials.username, 
+          password: credentials.password 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('admin_auth', 'true');
+        localStorage.setItem('admin_user', credentials.username);
+        setIsAuthenticated(true);
+      } else {
+        setError('Invalid username or password');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_user');
+    setIsAuthenticated(false);
+    setCredentials({ username: '', password: '' });
+    router.push('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#C9A227] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen py-24 px-6">
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
+              Admin <span className="text-[#C9A227]">Login</span>
+            </h1>
+            <p className="text-white/60">Enter your credentials to access the control panel</p>
+          </div>
+
+          <div className="glass-card p-8">
+            <form onSubmit={handleLogin}>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Username</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Enter username"
+                    value={credentials.username}
+                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                    required
+                    autoComplete="username"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Password</label>
+                  <input
+                    type="password"
+                    className="input-field"
+                    placeholder="Enter password"
+                    value={credentials.password}
+                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+
+                {error && (
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-primary w-full disabled:opacity-50"
+                >
+                  {loading ? 'Verifying...' : 'Login'}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6 text-center">
+              <Link href="/" className="text-white/40 hover:text-white text-sm">
+                ← Back to Home
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return <AdminDashboardContent onLogout={handleLogout} />;
+}
+
+function AdminDashboardContent({ onLogout }: { onLogout: () => void }) {
+  const router = useRouter();
   const [guests, setGuests] = useState<any[]>([]);
   const [stats, setStats] = useState({ count: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
@@ -94,7 +228,7 @@ export default function AdminDashboard() {
     alert('Settings saved successfully!');
   };
 
-  const pendingBankTransfers = guests.filter((g) => 
+  const pendingBankTransfers = guests.filter((g: any) => 
     g.payment_method === 'bank_transfer' && g.payment_status === 'pending'
   );
 
@@ -123,7 +257,7 @@ export default function AdminDashboard() {
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => {
-                  const guest = guests.find(g => g.bank_transfer_proof === selectedReceipt);
+                  const guest = guests.find((g: any) => g.bank_transfer_proof === selectedReceipt);
                   if (guest) handleAction(guest.id, 'approve');
                   setShowReceiptModal(false);
                 }}
@@ -133,7 +267,7 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => {
-                  const guest = guests.find(g => g.bank_transfer_proof === selectedReceipt);
+                  const guest = guests.find((g: any) => g.bank_transfer_proof === selectedReceipt);
                   if (guest) handleAction(guest.id, 'reject');
                   setShowReceiptModal(false);
                 }}
@@ -157,6 +291,12 @@ export default function AdminDashboard() {
             </h1>
           </div>
           <div className="flex gap-4">
+            <button
+              onClick={onLogout}
+              className="btn-secondary"
+            >
+              Logout
+            </button>
             <Link href="/verify" className="btn-secondary">
               ✓ Verify Tickets
             </Link>
@@ -210,7 +350,7 @@ export default function AdminDashboard() {
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Pending Payments</div>
                 <div className="text-4xl font-bold text-[#FFB800]">
-                  {guests.filter((g) => g.payment_status === 'pending').length}
+                  {guests.filter((g: any) => g.payment_status === 'pending').length}
                 </div>
               </div>
             </div>
@@ -258,7 +398,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {guests.map((guest) => (
+                      {guests.map((guest: any) => (
                         <tr key={guest.id} className="border-b border-white/5 hover:bg-white/5">
                           <td className="py-4 px-4">
                             <div>
@@ -329,15 +469,15 @@ export default function AdminDashboard() {
               </div>
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Paid</div>
-                <div className="text-3xl font-bold text-green-400">{guests.filter((g) => g.payment_status === 'paid').length}</div>
+                <div className="text-3xl font-bold text-green-400">{guests.filter((g: any) => g.payment_status === 'paid').length}</div>
               </div>
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Pending</div>
-                <div className="text-3xl font-bold text-yellow-400">{guests.filter((g) => g.payment_status === 'pending').length}</div>
+                <div className="text-3xl font-bold text-yellow-400">{guests.filter((g: any) => g.payment_status === 'pending').length}</div>
               </div>
               <div className="glass-card p-6">
                 <div className="text-sm text-white/60 mb-2">Rejected</div>
-                <div className="text-3xl font-bold text-red-400">{guests.filter((g) => g.payment_status === 'rejected').length}</div>
+                <div className="text-3xl font-bold text-red-400">{guests.filter((g: any) => g.payment_status === 'rejected').length}</div>
               </div>
             </div>
 
@@ -347,13 +487,13 @@ export default function AdminDashboard() {
                 <div className="p-4 rounded-lg bg-white/5">
                   <div className="text-sm text-white/60 mb-2">Awaiting Verification</div>
                   <div className="text-2xl font-bold text-yellow-400">
-                    {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'pending').length}
+                    {guests.filter((g: any) => g.payment_method === 'bank_transfer' && g.payment_status === 'pending').length}
                   </div>
                 </div>
                 <div className="p-4 rounded-lg bg-white/5">
                   <div className="text-sm text-white/60 mb-2">Approved</div>
                   <div className="text-2xl font-bold text-green-400">
-                    {guests.filter((g) => g.payment_method === 'bank_transfer' && g.payment_status === 'paid').length}
+                    {guests.filter((g: any) => g.payment_method === 'bank_transfer' && g.payment_status === 'paid').length}
                   </div>
                 </div>
               </div>
@@ -368,7 +508,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                   <span className="text-white/60">Expected Revenue (if all pending paid)</span>
-                  <span className="text-xl font-bold text-white">₦{(guests.filter((g) => g.payment_status !== 'rejected').length * 10000).toLocaleString()}</span>
+                  <span className="text-xl font-bold text-white">₦{(guests.filter((g: any) => g.payment_status !== 'rejected').length * 10000).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                   <span className="text-white/60">Remaining Spots</span>
