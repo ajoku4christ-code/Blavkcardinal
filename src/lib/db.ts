@@ -34,11 +34,14 @@ function ensureAdmin() {
     if (result.count === 0) {
       const passwordHash = bcrypt.hashSync('admin123', 10);
       db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run('admin', passwordHash);
+      console.log('Admin user created: admin / admin123');
     }
   } catch (e) {
-    // Table might not exist yet
+    console.error('Error ensuring admin:', e);
   }
 }
+
+ensureAdmin();
 
 export function createGuest(data: { fullName: string; email: string; phone: string; paymentMethod: string }) {
   const ticketId = `EHP-${uuidv4().slice(0, 8).toUpperCase()}`;
